@@ -1,7 +1,7 @@
 # CITS3002 Project: Socket Programming
 Due date: Friday 5pm, 14 May 2021
 
-Drop dead due date: Friday5pm, 21May 2021 (5% penaltyon raw gradeper day)
+Drop dead due date: Friday 5pm, 21 May 2021 (5% penaltyon raw grade per day)
 Worth: 20% of the whole grade
 
 This Projectis  to expand  the  knowledge  on  socket programming.  You  are  required  to  research  further  on socket programming in addition to the materials provided in this unit in order to complete the Project. Please set  aside  enough  time  to  finish  this Projectrather  than  leaving  it  too  late,  as  it  will  require  some  time  to complete.You are expected to use Python as your programming language, but you are also welcome to use other  languages  such  as  C,  Java  etc.  If  you  do  decide  to  use  another  language,  you must  let  the  unit coordinator knowbefore you proceed.
@@ -12,6 +12,8 @@ Congratulations!  You've  been  given  an  internship  at  one  of  the  larger 
 
 ## 2. The Game
 The  game  in  question  is  a  strategic  tile  placing  game.  Each player is given aset of random tiles (from a preset list of tiles) by the server. A tile has two points on each side (north, east, south,  and  west).  Each  of  these  eight points is connected to one   of   the   other   points   on   the   tile,   so   there   are   four connections in total. Example tiles are shown in Figure 1.
+
+
 
 ### The Gameplay
 The board is initially empty. One at a time, in an order determined by the server, each player places a single tile on the board, ensuring that the first tile is connected to the edge of the board. In  the  second  turn,  each  player  chooses  where  their  token  will  enter  the  board.This  must  be  one  of  the points  on  the  tile  that  they  placed  in  the  first  turn, so  there  will  be  either  two  or  four  possible  locations (depending on whether or not the tile was placed in a corner).The player's token automatically follows the connection across the tile,reaching a new square of the board. If that board already has a tile, the token will follow the connection in the new tile, continuing until it either reaches an empty square or the edge of the board. If a player's token reaches the edge of the board, that player is eliminated. On the third turn, and all subsequent turns, each remaining player may place a single tile from their hand onto the empty square that their token is entering. Any other players who are entering the same square will be moved automatically according to the connections on the placed tile, so it is possible for other players to be eliminated. If only one player remains alive, that player is considered the winner.You can find what it looks like as a multiplayer in Figure 2 (initially, you will only be able to play with 1 client with the provided server code). You can also see what kind of messages are being sent between the server and clients in Figure 3.
