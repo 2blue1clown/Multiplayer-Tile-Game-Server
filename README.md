@@ -4,7 +4,10 @@ Due date: Friday 5pm, 14 May 2021
 Drop dead due date: Friday 5pm, 21 May 2021 (5% penalty on raw grade per day)
 Worth: 20% of the whole grade
 
-This Projectis  to expand  the  knowledge  on  socket programming.  You  are  required  to  research  further  on socket programming in addition to the materials provided in this unit in order to complete the Project. Please set  aside  enough  time  to  finish  this Projectrather  than  leaving  it  too  late,  as  it  will  require  some  time  to complete.You are expected to use Python as your programming language, but you are also welcome to use other  languages  such  as  C,  Java  etc.  If  you  do  decide  to  use  another  language,  you must  let  the  unit coordinator knowbefore you proceed.
+This Project is  to expand  the  knowledge  on  socket programming.  You  are  required  to  research  further  on socket programming in addition to the materials provided in this unit in order to complete the Project. Please set  aside  enough  time  to  finish  this Projectrather  than  leaving  it  too  late,  as  it  will  require  some  time  to complete.You are expected to use Python as your programming language, but you are also welcome to use other  languages  such  as  C,  Java  etc.  If  you  do  decide  to  use  another  language,  you must  let  the  unit coordinator knowbefore you proceed.
+
+### Quick Start
+Start the server before the client.
 
 ## 1. Intro: Your new job as a game developer
 
