@@ -13,10 +13,13 @@ Congratulations!  You've  been  given  an  internship  at  one  of  the  larger 
 ## 2. The Game
 The  game  in  question  is  a  strategic  tile  placing  game.  Each player is given aset of random tiles (from a preset list of tiles) by the server. A tile has two points on each side (north, east, south,  and  west).  Each  of  these  eight points is connected to one   of   the   other   points   on   the   tile,   so   there   are   four connections in total. Example tiles are shown in Figure 1.
 
-
+![Figure 1](./images/Figure1.png)
 
 ### The Gameplay
 The board is initially empty. One at a time, in an order determined by the server, each player places a single tile on the board, ensuring that the first tile is connected to the edge of the board. In  the  second  turn,  each  player  chooses  where  their  token  will  enter  the  board.This  must  be  one  of  the points  on  the  tile  that  they  placed  in  the  first  turn, so  there  will  be  either  two  or  four  possible  locations (depending on whether or not the tile was placed in a corner).The player's token automatically follows the connection across the tile,reaching a new square of the board. If that board already has a tile, the token will follow the connection in the new tile, continuing until it either reaches an empty square or the edge of the board. If a player's token reaches the edge of the board, that player is eliminated. On the third turn, and all subsequent turns, each remaining player may place a single tile from their hand onto the empty square that their token is entering. Any other players who are entering the same square will be moved automatically according to the connections on the placed tile, so it is possible for other players to be eliminated. If only one player remains alive, that player is considered the winner.You can find what it looks like as a multiplayer in Figure 2 (initially, you will only be able to play with 1 client with the provided server code). You can also see what kind of messages are being sent between the server and clients in Figure 3.
+
+![Figure 2](./images/Figure2.png)
+![Figure 3](./images/Figure3.png)
 
 ### Program Flow/Requirements
 For sake of simplicity we specify the flow of a single game below.
@@ -105,5 +108,9 @@ Finally, let us ensure that the game continues for all players, even if we don't
 -If it is any subsequent turn, the server should choose a random tile fromthe player's hand, and place it on the square that the player's token iscurrently on, with a random rotation value (again, 0-3).
 
 The details for the report are in the PDF.
+
+## Compact Marking Rubric
+
+![Marking Rubric](./images/MarkingRubric.png)
 
 
