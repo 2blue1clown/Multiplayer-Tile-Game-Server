@@ -64,13 +64,13 @@ Note  that  much  of  the  game  logic  about  legal  tile  placement,  etc.,  i
  ## 3. Tasks
 Your  goal  is  to  implement  a  server which  implements  the  game  described  above. To  get  started,  you  are provided with:
 
-tiles.py-This module defines essential constants and gameplay logic, which is sharedby both the client and the server.
+tiles.py - This module defines essential constants and gameplay logic, which is shared by both the client and the server.
 
-server.py-This moduleimplements  a  basic  server  that  allows  a  single  client  to  play  asingle game with no other participants, and very little error checking.
+server.py -T his module implements  a  basic  server  that  allows  a  single  client  to  play  asingle game with no other participants, and very little error checking.
 
-client.py-This module implements the game client. You do not need to understand this code,but you may like to inspect it to understand how the client expects to interact with the server.
+client.py - This module implements the game client. You do not need to understand this code,but you may like to inspect it to understand how the client expects to interact with the server.
 
-To guide your efforts, we provide four'tiers' of tasks to complete. Solutions which meet Tier 1 requirements areminimally viable, higher tiers offer more granulated mark allocations for solving more complex problems. We  will  only assess  a  single  submitted  implementation  (i.e.  the  tiers  'stack'  on  each  other  rather  than implementing therequirements of each separately).
+To guide your efforts, we provide four 'tiers' of tasks to complete. Solutions which meet Tier 1 requirements areminimally viable, higher tiers offer more granulated mark allocations for solving more complex problems. We  will  only assess  a  single  submitted  implementation  (i.e.  the  tiers  'stack'  on  each  other  rather  than implementing therequirements of each separately).
 
 ### Tier 1 - Enabling Multiple Players
 
