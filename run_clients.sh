@@ -7,4 +7,4 @@ do
   python3 client_v2.py &
 done
 
-exit
+exit 0
