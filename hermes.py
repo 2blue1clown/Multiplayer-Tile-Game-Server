@@ -5,6 +5,7 @@ import select
 import queue
 import random
 import tiles
+import time
 
 
 class Hermes(object): #This is the server and messenger
@@ -19,6 +20,8 @@ class Hermes(object): #This is the server and messenger
         # create a TCP/IP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.game_master = game_master.GameMaster(self,self.number_of_players) #TODO check if this is the correct thing to do
+        self.WAIT_TIME = 5
+        
 
 
     def read_socket(self,s):
@@ -42,7 +45,7 @@ class Hermes(object): #This is the server and messenger
             self.outputs.remove(s)
 
         else:
-            #print("Sending {} to {}".format(next_msg, s.getpeername()))
+            print("Sending {} to {}".format(next_msg, s.getpeername()))
             s.send(next_msg)
     
     def handle_socket(self, s):
@@ -117,6 +120,10 @@ class Hermes(object): #This is the server and messenger
 
             for socket in writable:
                 self.write_socket(socket)
+
+            if self.game_master.game_finished:
+                time.sleep(self.WAIT_TIME)
+                self.game_master.restart_game()
             
             for socket in exceptional:
                 self.handle_socket(socket)
@@ -136,3 +143,6 @@ class Hermes(object): #This is the server and messenger
         del self.message_queues[s]
 
         self.game_master.remove_client(s)
+    
+
+    

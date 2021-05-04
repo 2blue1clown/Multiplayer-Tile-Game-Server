@@ -15,10 +15,11 @@ class GameMaster():
         
         self.users = [ ]  # Users that are not players are spectators. Players will never be users
         self.players = {} #This will start empty. The key for a player will be the idnum
-        self.player_order = []
+        self.player_order = []  #this will contain the idnums of the players in their order
 
         self.hermes = hermes #TODO should hermes make game_master or vice versa
         self.is_started = False #TODO should be used by hermes
+        self.game_finished = False
 
     
     def welcome(self,connection, client_address):
@@ -83,47 +84,47 @@ class GameMaster():
         self.first_turn = True
         # set player order.
         for player in self.players.values():
-            self.player_order.append(player)
+            self.player_order.append(player.idnum)
         self.next_turn()
 
     #next_turn will check if the game is finished as well
     def next_turn(self): 
+        
+        #check if this is the first tern of the game
+        if self.first_turn:
+            next_player = self.player_order.pop(0)
+            self.player_order.append(next_player)
+            print("GM: Player {} goes first".format(next_player))
+            self.first_turn = False
+        #check if the previous turn's player has placed their token
+        elif self.players[self.player_order[-1]].placed_token:
+            next_player = self.player_order.pop(0)
+            self.player_order.append(next_player)
+            print("GM: Sent next turn to {}".format(next_player))
+        else:
+            next_player = self.player_order[-1] # current player
+            print("GM: Player {} gets another turn".format(next_player))
+
+        self.hermes.send_all(tiles.MessagePlayerTurn(next_player).pack())
+        # check if the game is over now
         if(self.is_finished()):
             self.finish_game()       
-        else:
-            #check if this is the first tern of the game
-            if self.first_turn:
-                next_player = self.player_order.pop(0)
-                self.player_order.append(next_player)
-                print("GM: Player {} goes first".format(next_player.idnum))
-                self.first_turn = False
-            #check if the previous turn's player has placed their token
-            elif self.player_order[-1].placed_token:
-                next_player = self.player_order.pop(0)
-                self.player_order.append(next_player)
-                print("GM: Sent next turn to {}".format(next_player))
-            else:
-                next_player = self.player_order[-1] # current player
-                print("GM: Player {} gets another turn".format(next_player))
-
-            self.hermes.send_all(tiles.MessagePlayerTurn(next_player.idnum).pack())
 
     def change_player_to_user(self, idnum):
-        print("GM: Player {} eliminated".format(idnum))
         try:
             elim_player = self.players.pop(idnum)
-            self.player_order.remove(elim_player)
+            self.player_order.remove(elim_player.idnum)
             elim_player = elim_player.become_user()
             self.users.append(elim_player)
         except KeyError:
             return
+        print("GM: Player {} eliminated".format(idnum))
 
 
     def do_eliminations(self,eliminated):
         # need to check for any eliminations
         for idn in eliminated:
-            if idn in self.players.keys():#players.keys() is all the player idnums
-
+            if idn in self.player_order:
                 self.hermes.send_all(tiles.MessagePlayerEliminated(idn).pack())
                 self.change_player_to_user(idn)
 
@@ -132,26 +133,29 @@ class GameMaster():
     def place_tile(self,msg):
 
         if self.board.set_tile(msg.x, msg.y, msg.tileid, msg.rotation, msg.idnum):
-            print("GM: tile placed by {}".format(msg.idnum))
-            msg_player = self.players[msg.idnum]
             # notify client that placement was successful
             self.hermes.send_all(msg.pack())
-            # check for token movement
-            positionupdates, eliminated = self.board.do_player_movement(self.players.keys())
 
-            for msg in positionupdates:
-                self.hermes.send_all(msg.pack())
+
+        print("GM: tile placed by {}".format(msg.idnum))
+        msg_player = self.players[msg.idnum]
+        # check for token movement
+        print('GM: player_order before updating: {}'.format(self.player_order))
+        positionupdates, eliminated = self.board.do_player_movement(self.player_order)
+
+        for msg in positionupdates:
+            self.hermes.send_all(msg.pack())
+        print('GM: updated all with positionupdates')
+        
+        # check and send messages for eliminations
+        self.do_eliminations(eliminated)
             
-            # check and send messages for eliminations
-            self.do_eliminations(eliminated)
-                
-            # pickup a new tile
-            tileid = tiles.get_random_tileid()
-            self.hermes.send_to(tiles.MessageAddTileToHand(tileid).pack(),msg_player.connection)
-            print("GM: tile sent to {}".format(msg_player.idnum))
+        # pickup a new tile
+        tileid = tiles.get_random_tileid()
+        self.hermes.send_to(tiles.MessageAddTileToHand(tileid).pack(),msg_player.connection)
 
-            # start next turn 
-            self.next_turn()
+        # start next turn 
+        self.next_turn()
 
     def move_token(self,msg):
         if not self.board.have_player_position(msg.idnum):
@@ -163,10 +167,12 @@ class GameMaster():
                 msg_player.placed_token = True
 
                 # check for token movement
-                positionupdates, eliminated = self.board.do_player_movement(self.players.keys())
+                print('GM: player_order before updating: {}'.format(self.player_order))
+                positionupdates, eliminated = self.board.do_player_movement(self.player_order)
 
                 for msg in positionupdates:
                     self.hermes.send_all(msg.pack())
+                print('GM: updated all with positionupdates')
                 
                 # need to check for any eliminations
                 self.do_eliminations(eliminated)
@@ -202,10 +208,12 @@ class GameMaster():
         print('GM: Sending countdown before next game')
 
         self.hermes.send_all(tiles.MessageCountdown().pack())
+        self.game_finished = True
+        # You cannot sleep in the read loop
+        # because then the remaining messages wont be sent
+        self.restart_game()
 
-        time.sleep(5) #TODO change this be more easily adjustable.
-        self.is_started = False
-        print('GM: Current users: {}'.format(self.users))
+    def restart_game(self):
 
         self.board = tiles.Board()
         #Send new welcome messages to the user
