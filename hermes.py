@@ -18,6 +18,7 @@ class Hermes(object): #This is the server and messenger
         self.message_queues = {}
         # create a TCP/IP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.game_master = game_master.GameMaster(self,self.number_of_players) #TODO check if this is the correct thing to do
 
 
     def read_socket(self,s):
@@ -105,7 +106,6 @@ class Hermes(object): #This is the server and messenger
         self.sock.listen(self.number_allowed_connections)
         self.inputs.append(self.sock)
 
-        self.game_master = game_master.GameMaster(self,self.number_of_players) #TODO check if this is the correct thing to do
 
         while self.inputs:
             # wait for at least one of the sockets to be ready for processing
@@ -134,3 +134,5 @@ class Hermes(object): #This is the server and messenger
         s.close()
 
         del self.message_queues[s]
+
+        self.game_master.remove_client(s)
