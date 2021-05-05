@@ -68,7 +68,7 @@ class Hermes(object): #This is the server and messenger
         self.message_queues[connection] = queue.Queue()
 
         # Welcome the client to the game
-        self.game_master.welcome(connection,client_address)
+        self.game_master.new_client(connection,client_address)
         
 
     def process_data(self, data):
