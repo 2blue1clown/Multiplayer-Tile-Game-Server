@@ -66,8 +66,11 @@ class GameMaster():
     #next_turn will check if the game is finished as well
     def next_turn(self): 
         #check if this is the first tern of the game
+        if self.is_finished():
+            self.finish_game()
+            return
         if len(self.player_order) <= 0:
-            raise Exception("player_order should never be empty")
+            raise Exception("Cannot have player_order less than 0")
         if self.first_turn:
             next_player = self.player_order.pop(0)
             self.player_order.append(next_player)
@@ -85,14 +88,16 @@ class GameMaster():
         self.hermes.send_all(tiles.MessagePlayerTurn(next_player.idnum).pack())
         self.whose_turn = next_player.idnum
 
-        if self.is_finished():
-            self.clean_up()
-            self.in_game = False
-            if self.ready_to_start():
-                self.hermes.send_all(tiles.MessageCountdown().pack())
-                self.start_game()
-                return
-                
+
+    
+    def finish_game(self):
+        self.clean_up()
+        self.in_game = False
+        if self.ready_to_start():
+            self.hermes.send_all(tiles.MessageCountdown().pack())
+            self.start_game()
+        return
+
             
     def clean_up(self):
         for idnum in range(self.number_of_players):
@@ -136,13 +141,13 @@ class GameMaster():
             for msg in positionupdates:
                 self.hermes.send_all(msg.pack())
             
-            # check and send messages for eliminations
-            self.do_eliminations(eliminated)
-                
             # pickup a new tile
             tileid = tiles.get_random_tileid()
             self.hermes.send_to(tiles.MessageAddTileToHand(tileid).pack(),msg_player.connection)
             #DEBUG print("GM: tile sent to {}".format(msg_player.idnum))
+            # check and send messages for eliminations
+            self.do_eliminations(eliminated)
+                
 
             # start next turn 
             self.next_turn()

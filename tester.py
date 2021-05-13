@@ -17,8 +17,8 @@ STATE_MISMATCH_TIME = 0.4
 
 
 if len(sys.argv) < 2:
-  print('usage:\n{} [commands to run server]'.format(sys.argv[0]))
-  exit(1)
+   print('usage:\n{} [commands to run server]'.format(sys.argv[0]))
+   exit(1)
 
 print('running server with:\n{}'.format(sys.argv[1:]))
 # pargs = [sys.executable, 'D:\\Networks\\2021\\AssignmentTest\\server-test.py']
@@ -585,6 +585,7 @@ class Tester:
       if isinstance(msg.msg, tiles.MessageMoveToken):
         result = ProcessEventResult.PLAYER_SET_TOKEN
     elif isinstance(msg, EvTurn):
+      print("turn set")
       with self.boardlock:
         self.turn_client_id = clientid
         self.set_current_turn(clientid, self.clientmap[clientid].idnum)
@@ -593,6 +594,7 @@ class Tester:
     elif isinstance(msg, EvWon):
       self.turn_client_id = None
       self.games_finished += 1
+      print('game finished with a winner')
     elif isinstance(msg, EvReset):
       print('resetting local board state')
       self.reset_local_board_state()
