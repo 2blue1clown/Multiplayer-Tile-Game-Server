@@ -11,6 +11,20 @@ class Player():
         self.placed_token = False
         self.idnum = game_master.free_id()
 
+class Logger():
+    def __init__(self):
+        self.log = [] # this is the log of messages with index 0 being the earliest message
+
+    # add a message to the log   
+    def add(self, msg):
+        self.log.append(msg)
+
+    # used on new spectator clients to bring them up to the current game turn 
+    def update_client(self,client_connection):
+        print("Updating {}".format(client_connection.getpeername()))
+        for msg in self.log:
+            send_to(msg,client_connection)
+
 class GameMaster():
     def __init__(self):
         self.born_time = time.perf_counter()
@@ -137,6 +151,7 @@ class GameMaster():
     def finish_game(self):
         self.in_game = False
         print("GAME FINISHED!")
+        send_all(tiles.MessageCountdown().pack())
 
     def ready_to_start(self):
         #TODO change the start game conditions
@@ -207,7 +222,7 @@ class GameMaster():
     def disconnect_player(self,connection):
         for player in self.players.values():
             if connection is player.connection:
-                if player.idnum in self.player_order:
+                if player.idnum in self.player_order and self.in_game:
                     send_all(tiles.MessagePlayerEliminated(player.idnum).pack())
                     self.remove_from_player_order(player.idnum)
                 send_all(tiles.MessagePlayerLeft(player.idnum).pack())
@@ -238,7 +253,8 @@ def send_all(msg):
     global message_queues
     global outputs
 
-    #self.logger.add(msg) 
+
+    logger.add(msg) 
     print("HERMES: Sending to all {}".format(tiles.read_message_from_bytearray(msg)))
     
     for sock in inputs:
@@ -311,6 +327,9 @@ def new_connection(s):
     message_queues[connection] = queue.Queue()
 
     # Welcome the client to the game
+    if game_master.in_game:
+        logger.update_client(connection)
+    
 
     return
     
@@ -383,6 +402,10 @@ inputs.append(serversock)
 # connect, which I do using a born time on the game_master
 game_master = GameMaster() 
 timeout_counter = 0 
+
+# This is the logger to keep track of all the messages that were sent to all.
+# Will be used to bring a new spectator up to speed
+logger = Logger()
 
 while inputs:
     # wait for at least one of the sockets to be ready for processing
