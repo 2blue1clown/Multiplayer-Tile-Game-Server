@@ -33,18 +33,28 @@ class GameMaster():
         # Make all of the games records again
         self.board = tiles.Board()
         self.in_game = True
-        self.clean_up()
-        print('GM: Start game')
+        self.first_turn = True
+        prev_player_num = len(self.players.values())
+        for id in range(prev_player_num):
+            self.change_player_to_user(id)
+            self.hermes.send_all(tiles.MessagePlayerLeft(id).pack())
+        self.player_order = []
+        self.players = {}
+        self.whose_turn = -1
 
 
+        
         self.pick_players() # Picks who is a user and who is a player
+        # set player order.
+        for player in self.players.values():
+            self.player_order.append(player.idnum)
+
         self.welcome() # Welcomes all players 
         print("GM: Players length: {}".format(len(self.players)))
         self.players_joined() # Lets players know of other players
 
         self.hermes.send_all(tiles.MessageGameStart().pack()) # Let all connections know game starts 
-
-            
+        self.cycle_player_turns() # Lets the clients know the turn order
 
         # send all players their tiles
         for player in self.players.values():
@@ -54,12 +64,6 @@ class GameMaster():
             
             # DEBUG print("GM: Sent tiles to {}".format(player.name))
 
-        self.first_turn = True
-        # set player order.
-        for player in self.players.values():
-            self.player_order.append(player)
-
-        self.cycle_player_turns()
         self.next_turn()
         return
 
@@ -74,41 +78,29 @@ class GameMaster():
         if self.first_turn:
             next_player = self.player_order.pop(0)
             self.player_order.append(next_player)
-            print("GM: Player {} goes first".format(next_player.idnum))
+            print("GM: Player {} goes first".format(next_player))
             self.first_turn = False
+            print(self.player_order)
         #check if the previous turn's player has placed their token
-        elif self.player_order[-1].placed_token:
+        elif self.players[self.player_order[-1]].placed_token:
             next_player = self.player_order.pop(0)
             self.player_order.append(next_player)
-            print("GM: Sent next turn to {}".format(next_player.idnum))
+            print("GM: Sent next turn to {}".format(next_player))
         else:
             next_player = self.player_order[-1] # current player
-            print("GM: Player {} gets another turn".format(next_player.idnum))
+            print("GM: Player {} gets another turn".format(next_player))
         
-        self.hermes.send_all(tiles.MessagePlayerTurn(next_player.idnum).pack())
-        self.whose_turn = next_player.idnum
+        self.hermes.send_all(tiles.MessagePlayerTurn(next_player).pack())
+        self.whose_turn = next_player
+        return
 
 
     
     def finish_game(self):
-        self.clean_up()
         self.in_game = False
         if self.ready_to_start():
             self.hermes.send_all(tiles.MessageCountdown().pack())
             self.start_game()
-        return
-
-            
-    def clean_up(self):
-        for idnum in range(self.number_of_players):
-            self.change_player_to_user(idnum)
-            #self.hermes.send_all(tiles.MessagePlayerLeft(idnum).pack())
-        
-        self.player_order = []
-        self.players = {}
-        self.whose_turn = -1
-        self.in_game = False
-        print("clean up: len(users) = {}".format(len(self.users)))
         return
 
     def print_users(self):
@@ -119,9 +111,9 @@ class GameMaster():
     def do_eliminations(self,eliminated):
         # need to check for any eliminations
         for idn in eliminated:
-            if idn in self.players.keys():#players.keys() is all the player idnums
+            if idn in self.player_order:
                 self.hermes.send_all(tiles.MessagePlayerEliminated(idn).pack())
-                self.change_player_to_user(idn)
+                self.remove_from_player_order(idn)
 
 
     def place_tile(self,msg):
@@ -136,7 +128,7 @@ class GameMaster():
             # notify client that placement was successful
             self.hermes.send_all(msg.pack())
             # check for token movement
-            positionupdates, eliminated = self.board.do_player_movement(self.players.keys())
+            positionupdates, eliminated = self.board.do_player_movement(self.player_order)
 
             for msg in positionupdates:
                 self.hermes.send_all(msg.pack())
@@ -164,7 +156,7 @@ class GameMaster():
                 msg_player.placed_token = True
 
                 # check for token movement
-                positionupdates, eliminated = self.board.do_player_movement(self.players.keys())
+                positionupdates, eliminated = self.board.do_player_movement(self.player_order)
 
                 for msg in positionupdates:
                     self.hermes.send_all(msg.pack())
@@ -180,7 +172,9 @@ class GameMaster():
         for player in self.players.values():
             if player.connection is connection:
                 #need to eliminate player
-                self.hermes.send_all(tiles.MessagePlayerEliminated(player.idnum).pack())
+                if player.idnum in self.player_order:
+                    self.hermes.send_all(tiles.MessagePlayerEliminated(player.idnum).pack())
+                    self.remove_from_player_order()
                 self.hermes.send_all(tiles.MessagePlayerLeft(player.idnum).pack())
                 self.change_player_to_user(player.idnum)
                 if self.whose_turn == player.idnum and not self.is_finished():
@@ -198,7 +192,7 @@ class GameMaster():
 
     def is_finished(self):
         #DEBUG print('GM: len(players): {}'.format(len(self.players)))
-        if len(self.players)<2:
+        if len(self.player_order)<2:
             return True
         else:
             return False
@@ -252,17 +246,20 @@ class GameMaster():
     def cycle_player_turns(self):
         print('GM: Cycling Players.. player_order length : {}'.format(len(self.player_order)))
         for player in self.player_order:
-            self.hermes.send_all(tiles.MessagePlayerTurn(player.idnum).pack())
+            self.hermes.send_all(tiles.MessagePlayerTurn(player).pack())
 
     def change_player_to_user(self, idnum):
         try:
-            elim_player = self.players.pop(idnum)
-            self.player_order.remove(elim_player)
-            elim_player = elim_player.become_user()
-            self.users.append(elim_player)
+            player = self.players.pop(idnum)
+            player = player.become_user()
+            self.users.append(player)
         except KeyError:
             return
         #DEBUG print("GM: Player {} changed to user".format(idnum))
+    
+    def remove_from_player_order(self, idnum):
+        self.player_order.remove(idnum)
+        return
                                                          
     
 

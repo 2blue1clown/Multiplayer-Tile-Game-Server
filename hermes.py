@@ -119,7 +119,7 @@ class Hermes(object): #This is the server and messenger
                 continue
             else:
                 #
-                print("HERMES: sending to {}".format(sock.getpeername()))
+                # print("HERMES: sending to {}".format(sock.getpeername()))
                 self.message_queues[sock].put(msg)
                 if sock not in self.outputs:
                     self.outputs.append(sock)

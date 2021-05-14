@@ -2,7 +2,7 @@
 
 
 
-for run in {1..2}
+for run in {1..4}
 do
   python3 client_v2.py &
 done
