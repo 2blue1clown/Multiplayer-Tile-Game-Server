@@ -1,0 +1,8 @@
+#!/home/jono/Documents/uni/2021sem1/CITS3002/CITS3002_Project/venv/bin/python
+# -*- coding: utf-8 -*-
+import re
+import sys
+from setuptools.command.easy_install import main
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(main())
