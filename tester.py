@@ -678,9 +678,9 @@ test_results.append('FOUR PLAYERS: {}'.format(run_a_test(num_initial=4)))
 print("Starting FOUR PLAYERS x TWO GAMES")
 time.sleep(1)
 test_results.append('FOUR PLAYERS x TWO GAMES: {}'.format(run_a_test(num_initial=4, num_games=2)))
-# print("Starting TWO PLAYERS + TWO NEW,  TWO GAMES")
-# time.sleep(1)
-# test_results.append('TWO PLAYERS + TWO NEW, TWO GAMES: {}'.format(run_a_test(num_during=2, num_games=2)))
+print("Starting TWO PLAYERS + TWO NEW,  TWO GAMES")
+time.sleep(1)
+test_results.append('TWO PLAYERS + TWO NEW, TWO GAMES: {}'.format(run_a_test(num_during=2, num_games=2)))
 
 for result in test_results:
   print(result)

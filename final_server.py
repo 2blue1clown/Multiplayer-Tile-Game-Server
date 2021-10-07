@@ -1,3 +1,7 @@
+# Author name: Jonathan Jones
+# Student number: 22479345
+# Date 14 May 2021
+
 import socket
 import tiles
 import select
@@ -5,6 +9,8 @@ import queue
 import random
 import time
 
+
+# This is a class that is used to keep track of player info
 class Player():
     def __init__(self, connection):
         self.connection = connection
@@ -13,6 +19,8 @@ class Player():
         self.hand = []
         self.first_turn = True
 
+# This is a class to log any messages sent to all with send_all()
+# It also brings clients that join late up to speed.
 class Logger():
     def __init__(self):
         self.log = [] # this is the log of messages with index 0 being the earliest message
@@ -27,6 +35,7 @@ class Logger():
         for msg in self.log:
             send_to(msg,client_connection)
 
+# Handles the game logic
 class GameMaster():
     def __init__(self):
         self.turn_start_time = 0
@@ -495,6 +504,7 @@ while inputs:
     # Check if current player has been taking too long
     current_time = time.perf_counter()
     if current_time - game_master.turn_start_time > MAX_TURN_TIME and game_master.in_game:
+        print("current_time {} and turn_start_time {}".format(current_time,game_master.turn_start_time))
         game_master.random_turn()
     
 
