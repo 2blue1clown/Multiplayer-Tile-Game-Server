@@ -1,5 +1,8 @@
 # CITS3002 Project readme
 
+Name: Jonathan Jones 
+Student Num: 22479345
+
 ## Testing environment
 
 OS: Manjaro Linux
