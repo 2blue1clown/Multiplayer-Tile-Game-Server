@@ -1,4 +1,4 @@
-# CITS3002 Project readme
+# CITS3002 Project
 
 Name: Jonathan Jones 
 Student Num: 22479345
