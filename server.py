@@ -487,6 +487,8 @@ timeout_counter = 0
 # Will be used to bring a new spectator up to speed
 logger = Logger()
 
+no_connection_counter = 0
+
 while inputs:
     # wait for at least one of the sockets to be ready for processing
     #print("Server waiting for next event")
@@ -498,6 +500,10 @@ while inputs:
             game_master.start_game()
         else:
             print("Server doesn't have enough connections to start game")
+            no_connection_counter+=1
+            if no_connection_counter > 3:
+                print("Server didn't have enough connections for 3 cycles for eixtting.")
+                exit()
     elif not game_master.in_game:
         print("timeout_counter: {} in_game: {}".format(timeout_counter,game_master.in_game))
     
