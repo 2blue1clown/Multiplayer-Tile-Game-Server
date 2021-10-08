@@ -10,6 +10,11 @@ OS: Manjaro Linux
 Kernel: 5.12.2-arch1-3-surface
 
 Python: python 3.9.4
+
+### Quick Start
+
+Run test.sh to see a demonstration of what the project can do. Note that there is an autoplay feature if a client does not make a move within a certain period. 
+
 # CITS3002 Project: Socket Programming
 Due date: Friday 5pm, 14 May 2021
 
